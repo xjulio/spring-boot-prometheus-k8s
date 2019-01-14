@@ -1,0 +1,16 @@
+---
+cluster_name: mb-demo-cluster1
+image_tag: gcr.io/mb-demo-224014/spring-boot-prometheus-k8s:latest
+
+app_image: gcr.io/mb-demo-224014/spring-boot-prometheus-k8s
+app_tag: latest
+
+app_name: mb-demo-application-service 
+app_version: latest
+
+gcp_project: mb-demo-224014
+gcp_cred_kind: serviceaccount
+gcp_cred_file: /Users/xjulio/gcloud-cred-ansible.json
+gcp_service_email: "ansible@mb-demo-224014.iam.gserviceaccount.com"
+gcp_zone: "us-central1-a"
+gcp_region: "us-central1"

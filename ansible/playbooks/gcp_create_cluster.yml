@@ -1,0 +1,22 @@
+---
+- name: Build Docker APP Docker Image
+  hosts: localhost
+  gather_facts: no
+  connection: local
+
+  tasks:
+    - name: Include ssh vars
+      include_vars: ../vars/main.yml
+ 
+    - name: create a cluster
+      gcp_container_cluster:
+          name: "{{ cluster_name }}"
+          initial_node_count: 3
+          project: "{{ gcp_project }}"
+          zone: "{{ gcp_zone }}"
+          auth_kind: serviceaccount
+          service_account_file: "{{ gcp_cred_file }}"
+          state: present
+          
+#    - name: Build image and tag image
+#      shell: gcloud container clusters create "{{ cluster_name }}" --num-nodes=3

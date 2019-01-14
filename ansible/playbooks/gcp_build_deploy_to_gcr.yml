@@ -1,0 +1,30 @@
+- name: Build Docker APP Docker Image
+  hosts: localhost
+  gather_facts: no
+  connection: local
+
+  tasks:
+    - name: Include vars
+      include_vars: ../vars/main.yml
+
+    - name: Build image and tag image
+      shell: docker build -t "{{ image_tag }}" ../../
+      register: build
+
+    - debug:
+       msg: "Build container image {{ image_tag }} from Dockerfile"
+      
+    - name: Push image do gcr repo
+      shell: gcloud docker -- push "{{ image_tag }}"
+      register: push
+
+    - debug:
+       msg: "Push container image {{ image_tag }} to GCR Repository"
+
+
+   # - name: Build an image and push it to a private repo
+   #   docker_image:
+   #     path: ../
+   #     name: gcr.io/mb-demo-224014/spring-boot-prometheus-k8s
+   #     tag: v3
+   #     push: no      

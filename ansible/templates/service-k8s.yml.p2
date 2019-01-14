@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: spring-boot-prometheus-k8s-service1
+  labels:
+    run: spring-boot-prometheus-k8s
+  namespace: default
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    run: spring-boot-prometheus-k8s
+  sessionAffinity: None
+  type: LoadBalancer
+status:
+  loadBalancer:
+    ingress:
+    - ip: {{ external_ip.address }}
+   

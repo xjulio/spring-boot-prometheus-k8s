@@ -1,0 +1,55 @@
+- name: Install K8s Servoce
+  hosts: localhost
+  gather_facts: no
+  connection: local
+
+  tasks:
+   - name: Include ssh vars
+     include_vars: ../vars/main.yml
+  
+   - name: create external IP
+     gce_eip:
+        name: mbird
+        service_account_email: "{{ gcp_service_email }}"
+        credentials_file: "{{ gcp_cred_file }}"
+        project_id: "{{ gcp_project }}"
+        region: "{{ gcp_region }}"
+        state: present
+     register: external_ip
+    
+   - debug:
+       msg: "External IP: {{ external_ip }}"       
+
+   - name: verify service
+     k8s:
+       name: "{{ app_name }}"
+       kind: Service
+       api_version: v1
+       namespace: default
+       state: present
+     ignore_errors: yes
+     register: verify
+
+   # MODULE WITH BUG, does not set the IP Address of Load Balancer Correctly     
+   # - name: create service description
+   #   template:
+   #     src: ../templates/service-k8s.yml.p2
+   #     dest: /tmp/service-k8s.yml
+   #   register: create
+   #   tags:
+   #       - template    
+     
+   # - name: deploy k8s service
+   #   shell: kubectl create -f /tmp/service-k8s.yml
+   #   when: verify.failed
+   #   register: create 
+   
+   - name: deploy application
+     shell: kubectl run "{{ app_name }}" --image="{{ image_tag }}" --port 80
+     when: verify.failed
+     register: has_deploy
+
+   - name: expose application
+     shell: kubectl expose deployment "{{ app_name }}" --type=LoadBalancer --port 80 --target-port 80 --load-balancer-ip="{{ external_ip.address }}"
+     when: verify.failed
+     register: has_exposed
